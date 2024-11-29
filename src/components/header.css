@@ -2,3 +2,14 @@ nav a {
     color: gray;
     font-weight: 400;
   }
+
+  .text-blue-400 {
+    color: blue !important;
+  }
+  .text-gray-400 {
+    color: gray !important;
+  }
+  .font-bold {
+    font-weight: bold !important;
+  }
+  

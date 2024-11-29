@@ -4,7 +4,7 @@ import "./footer.css";
 
 const Footer = () => {
   return (
-    <footer className="p-4 font-roboto bg-lightgray container mx-auto flex place-content-around">
+    <footer className="p-4 font-roboto bg-lightgray container mx-auto flex place-content-around p-14">
       <div>
         <div className="flex gap-[10px]">
           <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">

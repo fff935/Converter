@@ -1,10 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import CardImg from '../images/card.png';
-
+import { Link, useLocation } from "react-router-dom";
+import CardImg from "../images/card.png";
 import "./header.css";
 
 const Header = () => {
+  const location = useLocation(); // Отримуємо поточний шлях
+
   return (
     <header className="text-black p-4 font-roboto">
       <div className="container mx-auto flex justify-between items-center px-16 pb-4">
@@ -23,21 +24,24 @@ const Header = () => {
               </linearGradient>
             </defs>
           </svg>
-          <h1 className="text-2xl font-bold ">Чіп Чендж</h1>
+
+          <h1 className="text-2xl font-bold">Чіп Чендж</h1>
         </Link>
 
         <nav className="flex gap-x-10 font-roboto text-sm font-light">
-          <Link to="/" className="hover:underline text-gray-400">
+          <Link to="/" className={`hover:underline ${location.pathname === "/" ? "text-blue-400" : "text-gray-400"}`}>
             Послуги
           </Link>
 
-          <Link to="/Converter" className="hover:underline">
+          <Link to="/Converter" className={`hover:underline ${location.pathname === "/Converter" ? "text-blue-400" : ""}`}>
             Конвертер валют
           </Link>
-          <Link to="/contact" className="hover:underline">
+
+          <Link to="/contact" className={`hover:underline ${location.pathname === "/contact" ? "text-blue-400" : ""}`}>
             Контакти
           </Link>
-          <Link to="/about" className="hover:underline">
+
+          <Link to="/about" className={`hover:underline ${location.pathname === "/about" ? "text-blue-400" : ""}`}>
             Задати питання
           </Link>
         </nav>
@@ -48,6 +52,7 @@ const Header = () => {
               fill="#1F1E25"
             />
           </svg>
+
           <p>Осбобистий кабінет</p>
         </div>
       </div>
@@ -62,8 +67,7 @@ const Header = () => {
           </div>
         </div>
         <div>
-        <img src={CardImg} alt="Card" />
-
+          <img src={CardImg} alt="Card" />
         </div>
       </div>
     </header>
