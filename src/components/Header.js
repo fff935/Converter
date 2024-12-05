@@ -33,7 +33,7 @@ const Header = () => {
             Послуги
           </Link>
 
-          <Link to="/Converter" className={`hover:underline ${location.pathname === "/Converter" ? "text-blue-400" : ""}`}>
+          <Link to="/converter" className={`hover:underline ${location.pathname === "/converter" ? "text-blue-400" : ""}`}>
             Конвертер валют
           </Link>
 
@@ -61,7 +61,7 @@ const Header = () => {
           <p className="text-4xl font-bold leading-[63.28px] text-white">Чіп Чендж</p>
           <p className="font-medium leading-[23.44px] text-white">Обмінник валют - навчальний</p>
           <div className="mt-[50px]">
-            <Link to="/Converter" className="bg-white rounded px-[30px] py-[20px] ">
+            <Link to="/converter" className="bg-white rounded px-[30px] py-[20px] ">
               Конвертер валют
             </Link>
           </div>

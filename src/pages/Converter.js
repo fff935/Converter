@@ -62,17 +62,17 @@ const CurrencyConverter = () => {
 
       setHistory((prevHistory) => {
         const updatedHistory = [newRecord, ...prevHistory]; // Додаємо новий запис на початок
-        return updatedHistory.slice(0, 8); // Залишаємо лише останні 8 записів
+        return updatedHistory.slice(0, 10); // Залишаємо лише останні 8 записів
       });
     }
   };
 
   return (
-    <div className="bg-[#F6F7FF] flex justify-center">
+    <section className="bg-[#F6F7FF] flex justify-center">
       <div className="flex flex-col  gap-[50px] bg-[#fff] p-[60px] m-[80px] rounded-[4px]">
         <div className="flex justify-between gap-[50px]">
+          <h1 className="font-bold text-4xl leading-[56px]">Конвертер валют</h1>
           <div>
-            <h1 className="font-bold text-4xl leading-[56px]">Конвертер валют</h1>
             <p className="text-[#707C87] font-medium mb-[30px]">В мене є:</p>
             <div className="text-[#707C87] font-semibold">
               <input type="number" placeholder="1000" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromValue} onChange={(e) => handleFromValueChange(e.target.value)} />
@@ -96,10 +96,9 @@ const CurrencyConverter = () => {
           </svg>
 
           <div>
-            <h1 className="font-bold text-4xl leading-[56px]">Конвертер валют</h1>
             <p className="text-[#707C87] font-medium mb-[30px]">Я отримаю:</p>
             <div className="text-[#707C87] font-semibold">
-              <input type="number" placeholder="?" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={toValue} onChange={(e) => handleToValueChange(e.target.value)} />
+              <input type="number" placeholder="0" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={toValue} onChange={(e) => handleToValueChange(e.target.value)} />
               <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={toCurrency} onChange={(e) => setToCurrency(e.target.value)}>
                 {Object.keys(currentRates).map((currency) => (
                   <option key={currency} value={currency}>
@@ -126,7 +125,7 @@ const CurrencyConverter = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

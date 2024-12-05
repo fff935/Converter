@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import HomeImg from "../images/homePageImg.png";
+import homeImg from "../images/homePageImg.png";
 
 const Home = () => {
   return (
@@ -15,7 +15,7 @@ const Home = () => {
           
           <Link to="/Converter" className="bg-[#2C36F2] text-[#fff] p-[25px] rounded-[4px] inline-block mt-[27px]">Конвертувати валюту</Link>
         </div>
-        <div><img src={HomeImg}></img></div>
+        <div><img src={homeImg} alt="plant"/></div>
       </div>
     </section>
   );
