@@ -17,7 +17,7 @@ const CurrencyConverter = () => {
     "2024-12-04": { UAH: 1, USD: 0.0281, EUR: 0.0263, GBR: 0.0222, CNY: 0.19 },
   };
 
-  const today = new Date().toISOString().split("T")[0]; // Поточна дата
+  const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
   const [fromCurrency, setFromCurrency] = useState("UAH");
   const [toCurrency, setToCurrency] = useState("USD");
@@ -67,12 +67,11 @@ const CurrencyConverter = () => {
   };
 
   // Фільтрування валют, щоб уникнути дублікатів
-  const getFilteredCurrencies = (excludeCurrency) =>
-    Object.keys(currentRates).filter((currency) => currency !== excludeCurrency);
+  const getFilteredCurrencies = (excludeCurrency) => Object.keys(currentRates).filter((currency) => currency !== excludeCurrency);
 
   // Оновлення значення при зміні валюти
   const handleCurrencyChange = (value, type) => {
-    if (type === 'from') {
+    if (type === "from") {
       setFromCurrency(value);
       handleFromValueChange(fromValue); // Перерахунок суми
     } else {
@@ -87,18 +86,8 @@ const CurrencyConverter = () => {
         <h1 className="font-bold text-4xl leading-[56px]">Конвертер валют</h1>
         <p className="text-[#707C87] font-medium mb-[30px]">В мене є:</p>
         <div className="text-[#707C87] font-semibold">
-          <input
-            type="number"
-            placeholder="1000"
-            className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]"
-            value={fromValue}
-            onChange={(e) => handleFromValueChange(e.target.value)}
-          />
-          <select
-            className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]"
-            value={fromCurrency}
-            onChange={(e) => handleCurrencyChange(e.target.value, 'from')}
-          >
+          <input type="number" placeholder="1000" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromValue} onChange={(e) => handleFromValueChange(e.target.value)} />
+          <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromCurrency} onChange={(e) => handleCurrencyChange(e.target.value, "from")}>
             {getFilteredCurrencies(toCurrency).map((currency) => (
               <option key={currency} value={currency}>
                 {currency}
@@ -107,31 +96,15 @@ const CurrencyConverter = () => {
           </select>
         </div>
         <div className="w-[220px] h-[60px] flex place-content-around items-center mt-[25px] border-[1px] border-[#C1C2CA] rounded-[4px] text-[#707C87] font-semibold">
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => handleDateChange(e.target.value)}
-            min={availableDates[0]}
-            max={availableDates[availableDates.length - 1]}
-          />
+          <input type="date" value={selectedDate} onChange={(e) => handleDateChange(e.target.value)} min={availableDates[0]} max={availableDates[availableDates.length - 1]} />
         </div>
       </div>
 
       <div>
         <p className="text-[#707C87] font-medium mb-[30px]">Хочу придбати:</p>
         <div className="text-[#707C87] font-semibold">
-          <input
-            type="number"
-            placeholder="1000"
-            className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]"
-            value={toValue}
-            onChange={(e) => handleToValueChange(e.target.value)}
-          />
-          <select
-            className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]"
-            value={toCurrency}
-            onChange={(e) => handleCurrencyChange(e.target.value, 'to')}
-          >
+          <input type="number" placeholder="1000" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={toValue} onChange={(e) => handleToValueChange(e.target.value)} />
+          <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={toCurrency} onChange={(e) => handleCurrencyChange(e.target.value, "to")}>
             {getFilteredCurrencies(fromCurrency).map((currency) => (
               <option key={currency} value={currency}>
                 {currency}
@@ -140,9 +113,7 @@ const CurrencyConverter = () => {
           </select>
         </div>
         <div className="flex justify-end">
-          <button className="bg-[#2C36F2] text-[#fff] rounded-[4px] font-medium text-[18px] w-[220px] h-[60px] mt-[25px]">
-            Зберегти результат
-          </button>
+          <button className="bg-[#2C36F2] text-[#fff] rounded-[4px] font-medium text-[18px] w-[220px] h-[60px] mt-[25px]">Зберегти результат</button>
         </div>
       </div>
     </div>
