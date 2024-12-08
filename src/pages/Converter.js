@@ -1,55 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CurrencyConverter = () => {
-  const rates = {
-    "2024-11-22": { UAH: 1, USD: 0.027, EUR: 0.025, GBR: 0.021, CNY: 0.19 },
-    "2024-11-23": { UAH: 1, USD: 0.0269, EUR: 0.0251, GBR: 0.0212, CNY: 0.19 },
-    "2024-11-24": { UAH: 1, USD: 0.0271, EUR: 0.0253, GBR: 0.0211, CNY: 0.19 },
-    "2024-11-25": { UAH: 1, USD: 0.0272, EUR: 0.0252, GBR: 0.021, CNY: 0.19 },
-    "2024-11-26": { UAH: 1, USD: 0.027, EUR: 0.025, GBR: 0.0209, CNY: 0.19 },
-    "2024-11-27": { UAH: 1, USD: 0.027, EUR: 0.0254, GBR: 0.0213, CNY: 0.19 },
-    "2024-11-28": { UAH: 1, USD: 0.0273, EUR: 0.0255, GBR: 0.0215, CNY: 0.19 },
-    "2024-11-29": { UAH: 1, USD: 0.0275, EUR: 0.0256, GBR: 0.0216, CNY: 0.19 },
-    "2024-11-30": { UAH: 1, USD: 0.0276, EUR: 0.0258, GBR: 0.0218, CNY: 0.19 },
-    "2024-12-01": { UAH: 1, USD: 0.0278, EUR: 0.0259, GBR: 0.0219, CNY: 0.19 },
-    "2024-12-02": { UAH: 1, USD: 0.0279, EUR: 0.026, GBR: 0.022, CNY: 0.19 },
-    "2024-12-03": { UAH: 1, USD: 0.028, EUR: 0.0262, GBR: 0.0221, CNY: 0.19 },
-    "2024-12-04": { UAH: 1, USD: 0.0281, EUR: 0.0263, GBR: 0.0222, CNY: 0.19 },
-  };
-
-  const today = new Date().toISOString().split("T")[0];
-  const [selectedDate, setSelectedDate] = useState(today);
+  const API_KEY = "6206b1c0719779c1123433d07e2fbdf365ab658b";
   const [fromCurrency, setFromCurrency] = useState("UAH");
   const [toCurrency, setToCurrency] = useState("USD");
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
-  const [history, setHistory] = useState([]); // Додаємо стан для збереження історії
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const [rates, setRates] = useState({});
+  const [history, setHistory] = useState([]);
 
-  const currentRates = rates[selectedDate] || { UAH: 1, USD: 0, EUR: 0, GBR: 0, CNY: 0 };
+  const today = new Date();
+  const minDate = new Date(today);
+  minDate.setDate(today.getDate() - 7);
+  const maxDate = today.toISOString().split("T")[0];
+  const minDateString = minDate.toISOString().split("T")[0];
+
+  const allowedCurrencies = ["USD", "UAH", "EUR", "GBP", "CNY"];
+
+  const fetchRates = async () => {
+    try {
+      const response = await fetch(`https://api.getgeoapi.com/v2/currency/historical/${selectedDate}?api_key=${API_KEY}&format=json`);
+      const data = await response.json();
+
+      if (data.status === "success") {
+        setRates(data.rates);
+      } else {
+        console.error("Failed to fetch rates:", data.error?.message || "Unknown error");
+        setRates({});
+      }
+    } catch (error) {
+      console.error("Error fetching rates:", error);
+      setRates({});
+    }
+  };
+
+  useEffect(() => {
+    fetchRates();
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (fromValue && rates[toCurrency]?.rate && rates[fromCurrency]?.rate) {
+      const rate = rates[toCurrency].rate / rates[fromCurrency].rate;
+      setToValue((fromValue * rate).toFixed(2));
+    }
+  }, [rates, fromValue, fromCurrency, toCurrency]);
 
   const handleFromValueChange = (value) => {
     setFromValue(value);
-    if (!currentRates[toCurrency] || !currentRates[fromCurrency]) {
-      setToValue("");
-    } else {
-      const rate = currentRates[toCurrency] / currentRates[fromCurrency];
+    if (rates[toCurrency]?.rate && rates[fromCurrency]?.rate) {
+      const rate = rates[toCurrency].rate / rates[fromCurrency].rate;
       setToValue((value * rate).toFixed(2));
+    } else {
+      setToValue("");
     }
   };
 
   const handleToValueChange = (value) => {
     setToValue(value);
-    if (!currentRates[fromCurrency] || !currentRates[toCurrency]) {
-      setFromValue("");
-    } else {
-      const rate = currentRates[fromCurrency] / currentRates[toCurrency];
+    if (rates[fromCurrency]?.rate && rates[toCurrency]?.rate) {
+      const rate = rates[fromCurrency].rate / rates[toCurrency].rate;
       setFromValue((value * rate).toFixed(2));
+    } else {
+      setFromValue("");
     }
-  };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    handleFromValueChange(fromValue); // Оновлення значення після зміни дати
   };
 
   const handleSaveResult = () => {
@@ -59,70 +73,88 @@ const CurrencyConverter = () => {
         fromAmount: `${fromValue} ${fromCurrency}`,
         toAmount: `${toValue} ${toCurrency}`,
       };
-
-      setHistory((prevHistory) => {
-        const updatedHistory = [newRecord, ...prevHistory]; // Додаємо новий запис на початок
-        return updatedHistory.slice(0, 10); // Залишаємо лише останні 8 записів
-      });
+      setHistory((prevHistory) => [newRecord, ...prevHistory.slice(0, 9)]);
     }
   };
 
+  // Розподіл історії на два стовпці
+  const firstColumn = history.slice(0, 5);
+  const secondColumn = history.slice(5, 10);
+
   return (
-    <section className="bg-[#F6F7FF] flex justify-center">
-      <div className="flex flex-col  gap-[50px] bg-[#fff] p-[60px] m-[80px] rounded-[4px]">
-        <div className="flex justify-between gap-[50px]">
-          <h1 className="font-bold text-4xl leading-[56px]">Конвертер валют</h1>
-          <div>
-            <p className="text-[#707C87] font-medium mb-[30px]">В мене є:</p>
-            <div className="text-[#707C87] font-semibold">
-              <input type="number" placeholder="1000" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromValue} onChange={(e) => handleFromValueChange(e.target.value)} />
-              <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromCurrency} onChange={(e) => setFromCurrency(e.target.value)}>
-                {Object.keys(currentRates).map((currency) => (
-                  <option key={currency} value={currency}>
-                    {currency}
-                  </option>
-                ))}
-              </select>
+    <section className="font-roboto">
+      <div className="bg-[#F6F7FF] flex justify-center">
+        <div className="flex flex-col gap-[50px] bg-[#fff] p-[60px] m-[80px] rounded-[4px]">
+          <div className="flex justify-between gap-[50px]">
+            <h1 className="font-bold text-4xl leading-[56px]">Конвертер валют</h1>
+            <div>
+              <p className="text-[#707C87] font-medium mb-[30px]">В мене є:</p>
+              <div className="text-[#707C87] font-semibold">
+                <input type="number" placeholder="1000" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromValue} onChange={(e) => handleFromValueChange(e.target.value)} />
+                <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={fromCurrency} onChange={(e) => setFromCurrency(e.target.value)}>
+                  {allowedCurrencies
+                    .filter((currency) => currency !== toCurrency)
+                    .map((currency) => (
+                      <option key={currency} value={currency}>
+                        {currency}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="w-[220px] h-[60px] flex place-content-around items-center mt-[25px] border-[1px] border-[#C1C2CA] rounded-[4px] text-[#707C87] font-semibold">
+                <input type="date" value={selectedDate} min={minDateString} max={maxDate} onChange={(e) => setSelectedDate(e.target.value)} />
+              </div>
             </div>
-            <div className="w-[220px] h-[60px] flex place-content-around items-center mt-[25px] border-[1px] border-[#C1C2CA] rounded-[4px] text-[#707C87] font-semibold">
-              <input type="date" value={selectedDate} onChange={(e) => handleDateChange(e.target.value)} />
-            </div>
-          </div>
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19.0001 24L24.0001 19L19.0001 14" stroke="#707C87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M24.0001 19C21.0667 19 10.6575 19 5.66673 19L2.00006 19" stroke="#707C87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M7 2L2 7L7 12" stroke="#707C87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M2.00006 7.00005C4.93339 7.00005 15.3427 7.00005 20.3334 7.00005L24.0001 7.00005" stroke="#707C87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
 
-          <div>
-            <p className="text-[#707C87] font-medium mb-[30px]">Я отримаю:</p>
-            <div className="text-[#707C87] font-semibold">
-              <input type="number" placeholder="0" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={toValue} onChange={(e) => handleToValueChange(e.target.value)} />
-              <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={toCurrency} onChange={(e) => setToCurrency(e.target.value)}>
-                {Object.keys(currentRates).map((currency) => (
-                  <option key={currency} value={currency}>
-                    {currency}
-                  </option>
-                ))}
-              </select>
+            <div>
+              <p className="text-[#707C87] font-medium mb-[30px]">Я отримаю:</p>
+              <div className="text-[#707C87] font-semibold">
+                <input type="number" placeholder="0" className="w-[220px] h-[60px] text-center border-[1px] border-[#C1C2CA] rounded-[4px]" value={toValue} onChange={(e) => handleToValueChange(e.target.value)} />
+                <select className="w-[120px] h-[60px] text-center ml-[15px] border-[1px] border-[#C1C2CA] rounded-[4px]" value={toCurrency} onChange={(e) => setToCurrency(e.target.value)}>
+                  {allowedCurrencies
+                    .filter((currency) => currency !== fromCurrency)
+                    .map((currency) => (
+                      <option key={currency} value={currency}>
+                        {currency}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
           </div>
+
+          <button onClick={handleSaveResult} className="bg-[#2C36F2] text-[#fff] rounded-[4px] font-medium text-[18px] w-[220px] h-[60px] mt-[25px]">
+            Зберегти результат
+          </button>
         </div>
-
-        <button onClick={handleSaveResult} className="bg-[#2C36F2] text-[#fff] rounded-[4px] font-medium text-[18px] w-[220px] h-[60px] mt-[25px]">
-          Зберегти результат
-        </button>
-
-        <div>
-          <h2 className="font-bold text-2xl">Історія конвертації</h2>
-          <ul className="list-disc pl-5 mt-4">
-            {history.map((record, index) => (
-              <li key={index}>
-                {record.date}: {record.fromAmount} {"-->"} {record.toAmount}
-              </li>
-            ))}
-          </ul>
+      </div>
+      <div className="bg-[#fff] flex justify-center p-[80px]">
+        <div className="bg-[#F6F7FF] py-[40px] px-[66px] rounded-[4px]  min-w-[1226px] min-h-[453px]">
+          <h2 className="font-bold text-2xl mb-4">Історія конвертації</h2>
+          <div className="flex justify-around justify-center">
+            {/* Перший стовпець */}
+            <ul className="list-disc flex flex-col gap-[15px]">
+              {firstColumn.map((record, index) => (
+                <li key={index} className="bg-[#fff] py-[15px] px-[25px] list-none rounded-[4px]">
+                  <span className="text-[#C1C2CA] mr-[15px]">{record.date}</span>
+                  <span className="mr-[34px] font-medium text-[#707C87]">{record.fromAmount}</span>
+                  <span className="text-[#C1C2CA]">{"-->"}</span>
+                  <span className="ml-[34px] font-medium text-[#707C87]">{record.toAmount}</span>
+                </li>
+              ))}
+            </ul>
+            {/* Другий стовпець */}
+            <ul className="list-disc flex flex-col gap-[15px]">
+              {secondColumn.map((record, index) => (
+                <li key={index} className="bg-[#fff] py-[15px] px-[25px] list-none rounded-[4px]">
+                  <span className="text-[#C1C2CA] mr-[15px]">{record.date}</span>
+                  <span className="mr-[34px] font-medium text-[#707C87]">{record.fromAmount}</span>
+                  <span className="text-[#C1C2CA]">{"-->"}</span>
+                  <span className="ml-[34px] font-medium text-[#707C87]">{record.toAmount}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
